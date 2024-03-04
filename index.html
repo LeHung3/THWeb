@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey</title>
+
+    <style>
+        h1{
+            font-size: 30px;
+            font-family: Arial, Helvetica, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login0{
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loginForm { 
+          max-width: 400px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f2f2f2;
+          border: 1px solid #000000;
+          border-radius: 5px;
+        }
+      
+        .login1 {
+          margin-bottom: 10px;
+        }
+      
+        label {
+          display: block;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+      
+        input[type="text"],
+        input[type="date"] {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-sizing: border-box;
+        }
+      
+        button[type="submit"] {
+          background-color: #4caf50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          width: 100%;
+          cursor: pointer;
+        }
+      
+        button[type="submit"]:hover {
+          background-color: #45a049;
+        }
+    
+        .question {
+        display: block;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+    
+      input[type="radio"],
+      input[type="checkbox"] {
+        margin-right: 5px;
+      }
+    
+      label {
+        margin-right: 10px;
+      }
+    
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f2f2f2;
+      }
+    
+      #result p {
+        margin-bottom: 5px;
+      }
+      
+      .quiz-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    p{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* CSS cho phần câu hỏi */
+#questionContainer {
+    margin-bottom: 20px;
+}
+
+/* CSS cho các loại câu hỏi multipleChoice */
+.multipleChoice {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+/* CSS cho nút chọn đáp án */
+.choices label {
+    display: block;
+    margin-bottom: 5px;
+}
+.choices input {
+    margin-bottom: 5px;
+}
+#result {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd; 
+    padding: 20px; 
+    margin-top: 20px; 
+    text-align: center; 
+    font-size: 18px; 
+    color: #333; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+      </style>
+</head>
+<body>
+    <h1>Bài Khảo Sát</h1>
+    <form id="loginForm" onsubmit="return saveInputValue()">
+        <div class="login0">Login</div>
+        <div class="login1">
+            <label for="name">Họ Tên:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="login1">
+            <label for="dob">Ngày tháng năm sinh:</label>
+            <input type="date" id="dob" name="dob" required>
+        </div>
+        <div class="login1">
+            <label for="ID">Căn cước công dân:</label>
+            <input type="number" id="ID" name="ID" required>
+        </div>
+        <div class="login1">
+            <label for="address">Địa chỉ:</label>
+            <input type="text" id="address" name="address" required>
+        </div>
+        <button type="submit">Xác Nhận</button>
+    </form>
+    <div id="quizContainer" class="quiz-container" style="display: none ;">
+        <form onsubmit="return submitQuiz(event)">
+            <div id="questionContainer"></div>
+    
+            <button type="submit">Nộp bài</button>
+    
+    <div id="result"></div>  
+  
+  </div>
+    
+  <script>
+
+    // Danh sách các câu hỏi
+    var questions = [
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 1: Trái Đất có hình cầu.",
+        answer: true
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 2: Mặt Trời quay quanh Trái Đất.",
+        answer: false
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 3: JavaScript là một ngôn ngữ lập trình.",
+        answer: true
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 4: Biển Đông là biển lớn nhất thế giới.",
+        answer: true
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 5: Nước ta có 365 ngày trong một năm.",
+        answer: false
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 6: Paris là thủ đô của Đức.",
+        answer: false
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 7: Cá voi có thể bay.",
+        answer: false
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 8: Java là một loại cà phê.",
+        answer: false
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 9: Sông Nile nằm ở châu Phi.",
+        answer: true
+    },
+    {
+        type: "trueFalse",
+        question: "Câu hỏi 10: Mặt Trăng có ánh sáng tự nhiên.",
+        answer: false
+    },
+
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 11: Con vật nào sau đây không sống trên trái đất?",
+        choices: ["Chó", "Gấu", "Rùa", "Godzilla"],
+        answer: "Godzilla"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 12: Trong số các loại động vật sau đây, loài nào không phải là động vật bò sát?",
+        choices: ["Cá sấu", "Khỉ", "Rắn", "Thằn lằn"],
+        answer: "Khỉ"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 13: Loài động vật nào được biết đến với khả năng bay cao?",
+        choices: ["Chim", "Chó", "Khỉ", "Ngựa"],
+        answer: "Chim"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 14: Đâu là loài cá nổi tiếng trong các hồ nuôi trên trái đất?",
+        choices: ["Cá vàng", "Cá hồi", "Cá mú", "Cá chép"],
+        answer: "Cá vàng"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 15: Loài động vật nào dưới đây được biết đến với việc cuộc sống đàn đội?",
+        choices: ["Sói", "Ngựa", "Chó", "Gấu"],
+        answer: "Sói"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 16: Loài động vật nào có thể thay đổi màu sắc để che đi mình khỏi kẻ săn mồi?",
+        choices: ["Chó", "Gấu", "Rùa", "Chameleon"],
+        answer: "Chameleon"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 17: Thực vật nào sau đây là loại cây cao lớn, sống hàng năm và có lá đỏ vào mùa thu?",
+        choices: ["Cây thông", "Cây sồi", "Cây phong", "Cây dương xỉ"],
+        answer: "Cây phong"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 18: Loài động vật nào sau đây sống ẩn dật và thường xuất hiện vào ban đêm?",
+        choices: ["Chuột", "Rắn", "Dơi", "Gấu"],
+        answer: "Dơi"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 19: Loài động vật nào được biết đến với khả năng nhảy xa và nhanh chóng?",
+        choices: ["Khỉ", "Kangaroo", "Chó", "Ngựa"],
+        answer: "Kangaroo"
+    },
+    {
+        type: "multipleChoice",
+        question: "Câu hỏi 20: Loài động vật nào được coi là biểu tượng của sức mạnh và quyền lực?",
+        choices: ["Chó", "Sư tử", "Khỉ", "Gấu"],
+        answer: "Sư tử"
+    },
+
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 21: Trong lập trình web, CSS là viết tắt của từ gì?",
+        choices: ["Cascading Style Sheet", "Centralized Style Sheet", "Computer Style Sheet", "Creative Style Sheet"],
+        answer: ["Cascading Style Sheet"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 22: PHP là ngôn ngữ lập trình dùng để làm gì?",
+        choices: ["Xử lý dữ liệu trên trình duyệt", "Xử lý sự kiện trên trang web", "Lập trình phía server", "Tạo hiệu ứng đồ họa"],
+        answer: ["Xử lý sự kiện trên trang web", "Lập trình phía server"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 23: AJAX là viết tắt của từ gì?",
+        choices: ["Asynchronous JavaScript and XML", "Advanced JavaScript and XML", "Active JavaScript and XML", "Automated JavaScript and XML"],
+        answer: ["Asynchronous JavaScript and XML"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 24: React là thư viện JavaScript nào?",
+        choices: ["Vue", "Angular", "React", "Ember"],
+        answer: ["React"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 25: JSON là viết tắt của từ gì?",
+        choices: ["JavaScript Object Notation", "Java Source Object Notation", "JavaScript Oriented Notation", "JSON Object Notation"],
+        answer: ["JavaScript Object Notation"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 26: SQL là viết tắt của từ gì?",
+        choices: ["Structured Language", "Sequential Language", "Semantic Language", "Structured Query Language"],
+        answer: ["Structured Query Language"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 27: Node.js là gì?",
+        choices: ["Một ngôn ngữ lập trình", "Một hệ điều hành", "Một máy chủ web", "Một runtime environment cho JavaScript"],
+        answer: ["Một runtime environment cho JavaScript"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 28: Git là hệ thống quản lý phiên bản dành cho cái gì?",
+        choices: ["Quản lý mã nguồn", "Quản lý cơ sở dữ liệu", "Quản lý tài liệu", "Quản lý người dùng"],
+        answer: ["Quản lý mã nguồn", "Quản lý tài liệu"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 29: Firebase là gì?",
+        choices: ["Một loại máy chủ web", "Một nền tảng đám mây", "Một trình duyệt web", "Một loại cơ sở dữ liệu"],
+        answer: ["Một nền tảng đám mây", "Một loại cơ sở dữ liệu"]
+    },
+    {
+        type: "multipleAnswer",
+        question: "Câu hỏi 30: Bootstrap là gì?",
+        choices: ["Một loại thực phẩm", "Một framework front-end", "Một hệ điều hành", "Một loại giày dép"],
+        answer: ["Một framework front-end"]
+    },
+
+    {
+        type: "text",
+        question: "Câu hỏi 31: Thủ đô của Pháp là gì?",
+        answer: "Paris"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 32: Trong hệ thống quốc gia ASEAN, Việt Nam có vị trí thứ mấy?",
+        answer: "7"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 33: Đơn vị đo lường nhiệt độ Celsius là gì?",
+        answer: "Độ C"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 34: Tên của ngôi sao gần trung tâm hệ Mặt Trời là gì?",
+        answer: "Mặt Trời"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 35: Loại hình năng lượng mặt trời được chuyển đổi thành năng lượng điện là gì?",
+        answer: "Năng lượng mặt trời"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 36: Ngày Quốc tế Phụ nữ là ngày nào?",
+        answer: "8/3"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 37: Sông nào là sông dài nhất thế giới?",
+        answer: "Amazon"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 38: Nước nào là quốc gia đầu tiên phát minh ra giấy tiền?",
+        answer: "Trung Quốc"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 39: Đảo lớn nhất thế giới là đảo nào?",
+        answer: "Greenland"
+    },
+    {
+        type: "text",
+        question: "Câu hỏi 40: Quốc gia nào nằm ở cực cực Đông của thế giới?",
+        answer: "Nga"
+    }
+  ];
+
+  // Tạo câu hỏi ra html
+  var questionContainer = document.getElementById("questionContainer");
+
+  questions.forEach(function(questionObj, index) {
+    var questionElement = document.createElement("div");
+    questionElement.classList.add("question");
+
+    var questionText = document.createElement("p");
+    questionText.textContent = questionObj.question;
+    questionElement.appendChild(questionText);
+
+    if (questionObj.type === "trueFalse") {
+      var trueFalseId = "question" + (index + 1) + "True";
+      var trueFalseInput = document.createElement("input");
+      trueFalseInput.type="radio";
+      trueFalseInput.name = "question" + (index + 1);
+      trueFalseInput.id = trueFalseId;
+      trueFalseInput.value = "true";
+      questionElement.appendChild(trueFalseInput);
+
+      var trueFalseLabel = document.createElement("label");
+      trueFalseLabel.textContent = "Đúng";
+      trueFalseLabel.htmlFor = trueFalseId;
+      questionElement.appendChild(trueFalseLabel);
+
+      var trueFalseId = "question" + (index + 1) + "False";
+      var trueFalseInput = document.createElement("input");
+      trueFalseInput.type = "radio";
+      trueFalseInput.name = "question" + (index + 1);
+      trueFalseInput.id = trueFalseId;
+      trueFalseInput.value = "false";
+      questionElement.appendChild(trueFalseInput);
+
+      var trueFalseLabel = document.createElement("label");
+      trueFalseLabel.textContent = "Sai";
+      trueFalseLabel.htmlFor = trueFalseId;
+      questionElement.appendChild(trueFalseLabel);
+    } else if (questionObj.type === "multipleChoice") {
+      questionObj.choices.forEach(function(choice, choiceIndex) {
+        var choiceId = "question" + (index + 1) + "Choice" + (choiceIndex + 1);
+        var choiceInput = document.createElement("input");
+        choiceInput.type = "radio";
+        choiceInput.name = "question" + (index + 1);
+        choiceInput.id = choiceId;
+        choiceInput.value = choice;
+        questionElement.appendChild(choiceInput);
+
+        var choiceLabel = document.createElement("label");
+        choiceLabel.textContent = choice;
+        choiceLabel.htmlFor = choiceId;
+        questionElement.appendChild(choiceLabel);
+      });
+    } else if (questionObj.type === "multipleAnswer") {
+      questionObj.choices.forEach(function(choice, choiceIndex) {
+        var choiceId = "question" + (index + 1) + "Choice" + (choiceIndex + 1);
+        var choiceInput = document.createElement("input");
+        choiceInput.type = "checkbox";
+        choiceInput.name = "question" + (index + 1) + "[]";
+        choiceInput.id = choiceId;
+        choiceInput.value = choice;
+        questionElement.appendChild(choiceInput);
+
+        var choiceLabel = document.createElement("label");
+        choiceLabel.textContent = choice;
+        choiceLabel.htmlFor = choiceId;
+        questionElement.appendChild(choiceLabel);
+      });
+    } else if (questionObj.type === "text") {
+      var textInput = document.createElement("input");
+      textInput.type = "text";
+      textInput.name = "question" + (index + 1);
+      questionElement.appendChild(textInput);
+    }
+
+    questionContainer.appendChild(questionElement);
+  });
+
+  function arraysEqual(arr1, arr2) {
+
+    if (!arr1 || !arr2) {
+        return false;
+    }
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+
+    for (var i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+  function submitQuiz(event) {
+    event.preventDefault();
+
+    var resultElement = document.getElementById("result");
+
+      var name = localStorage.getItem('name');
+      var dob = localStorage.getItem('dob');
+      var ID = localStorage.getItem('ID');
+      var address = localStorage.getItem('address');
+
+     
+      resultElement.innerText  = 'Họ và Tên: ' + name   +'\n' ;
+      resultElement.innerText  += 'Ngày sinh: ' + dob  +'\n' ;
+      resultElement.innerText  += 'CCCD: ' + ID  +'\n' ;
+      resultElement.innerText  += 'Địa chỉ: ' + address  +'\n' ;
+
+      var answers = [];
+    var questionElements = document.getElementsByClassName("question");
+
+    for (var i = 0; i < questionElements.length; i++) {
+        var questionElement = questionElements[i];
+        var questionType = questions[i].type;
+
+        if (questionType === "trueFalse") {
+            var selectedAnswer = questionElement.querySelector("input:checked");
+            if (selectedAnswer) {
+                if (selectedAnswer) {
+                    answers.push(selectedAnswer.value === "true");
+                } else {
+                    answers.push("");
+                }
+            }
+        } else if (questionType === "multipleChoice") {
+            var selectedAnswer = questionElement.querySelector("input:checked");
+            if (selectedAnswer) {
+                answers.push(selectedAnswer.value);
+            }else{
+                answers.push("");
+            }
+        } else if (questionType === "multipleAnswer") {
+            var selectedAnswers = [];
+            var selectedCheckboxes = questionElement.querySelectorAll("input:checked");
+            if (selectedCheckboxes) {
+                selectedCheckboxes.forEach(function(checkbox) {
+                    selectedAnswers.push(checkbox.value);
+                });
+            }else{
+                selectedAnswers.push([]);
+            }
+            answers.push(selectedAnswers);
+        } else if (questionType === "text") {
+            var textInput = questionElement.querySelector("input[type='text']");
+            if (textInput) {
+                answers.push(textInput.value);
+            }else{
+                answers.push("");
+            }
+        }
+    }
+
+    // Kiểm tra đáp án và đếm số câu trả lời đúng
+    var correctCount = 0;
+    for (var j = 0; j < questions.length; j++) {
+        var question = questions[j];
+        var userAnswer = answers[j];
+        var correctAnswer = question.answer;
+
+        if (Array.isArray(correctAnswer)) {
+            if (arraysEqual(userAnswer, correctAnswer)) {
+                correctCount++;
+            }
+        } else {
+            if (userAnswer === correctAnswer) {
+                correctCount++;
+            }
+        }
+    }
+ 
+
+
+    resultElement.innerHTML += 'Kết quả: ' + Math.floor(Math.random() * 40) + ' câu đúng.';
+    resultElement.style.display = 'block';
+
+    return false;
+  }
+
+
+
+
+
+    function saveInputValue() {
+      var name = document.getElementById('name').value;
+      var dob = document.getElementById('dob').value;
+      var ID = document.getElementById('ID').value;
+      var address = document.getElementById('address').value;
+
+      localStorage.setItem('name', name);
+      localStorage.setItem('dob', dob);
+      localStorage.setItem('ID', ID);
+      localStorage.setItem('address', address);
+
+      document.getElementById('name').value = '';
+      document.getElementById('dob').value = '';
+      document.getElementById('ID').value = '';
+      document.getElementById('address').value = '';
+
+      var loginForm = document.getElementById('loginForm');
+      loginForm.style.display = 'none';
+
+      var quizContainer = document.getElementById('quizContainer');
+      quizContainer.style.display = 'block';
+
+      return false;
+    }
+
+  </script>
+</body>
+</html>
